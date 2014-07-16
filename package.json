@@ -1,0 +1,38 @@
+{
+  "name": "lacona-phrase-validator",
+  "version": "0.0.0",
+  "description": "Lacona phrase that validates input programmatically, but does not suggest",
+  "main": "lib/validator.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "lodash": "^2.4.1"
+  },
+  "devDependencies": {
+    "mocha": "^1.20.1",
+    "chai": "^1.9.1",
+    "lacona": "^0.0.7",
+    "sinon": "^1.10.3",
+    "sinon-chai": "^2.5.0"
+  },
+  "scripts": {
+    "test": "mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brandonhorst/lacona-phrase-validator.git"
+  },
+  "keywords": [
+    "lacona",
+    "phrase",
+    "validate",
+    "validator"
+  ],
+  "author": "@brandonhorst",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/brandonhorst/lacona-phrase-validator/issues"
+  },
+  "homepage": "https://github.com/brandonhorst/lacona-phrase-validator"
+}
