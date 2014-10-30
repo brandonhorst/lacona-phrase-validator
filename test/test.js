@@ -15,18 +15,19 @@ describe('validator', function () {
 				done(null, inputString === 'validValue');
 			}
 		},
-		schema: {
+		phrases: [{
+			name: 'test',
 			root: {
 				type: 'validator',
 				validate: 'validateFunction',
 				id: 'test'
-			},
-			run: ''
-		}
+			}
+		}],
+		dependencies: [validator]
 	};
 
 	beforeEach(function () {
-		parser = new Parser().understand(validator);
+		parser = new Parser({sentences: ['test']});
 	});
 
 	it('validates an input programmatically', function (done) {
