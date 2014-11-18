@@ -10,11 +10,11 @@
     "lacona-util": "0.0.0"
   },
   "devDependencies": {
-    "chai": "^1.9.1",
-    "lacona": "^0.3.0",
-    "mocha": "^1.20.1",
-    "sinon": "^1.10.3",
-    "sinon-chai": "^2.5.0"
+    "chai": "^1.10.0",
+    "lacona": "^0.5.1",
+    "mocha": "^1.21.5",
+    "sinon": "^1.12.1",
+    "sinon-chai": "^2.6.0"
   },
   "scripts": {
     "test": "mocha test"
