@@ -13,6 +13,9 @@ describe('validator', function () {
 		scope: {
 			validateFunction: function (inputString, done) {
 				done(null, inputString === 'validValue');
+			},
+			defaultFunction: function (done) {
+				done(null, 'suggestion');
 			}
 		},
 		phrases: [{
@@ -20,6 +23,7 @@ describe('validator', function () {
 			root: {
 				type: 'validator',
 				validate: 'validateFunction',
+				default: 'defaultFunction',
 				id: 'test'
 			}
 		}],
@@ -61,5 +65,23 @@ describe('validator', function () {
 		.on('data', handleData)
 		.on('end', handleEnd)
 		.parse('invalidValue');
+	});
+
+	it('offers a suggestion', function (done) {
+		var handleData = sinon.spy(function (data) {
+			expect(data.suggestion.words[0].string).to.equal('suggestion');
+			expect(data.result.test).to.equal('suggestion');
+		});
+
+		var handleEnd = function () {
+			expect(handleData).to.have.been.calledOnce
+			done();
+		};
+
+		parser
+		.understand(grammar)
+		.on('data', handleData)
+		.on('end', handleEnd)
+		.parse('');
 	});
 });
