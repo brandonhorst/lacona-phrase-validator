@@ -1,10 +1,35 @@
 var chai = require('chai');
+var stream = require('stream');
 var expect = chai.expect;
-var validator = require('../lib/validator');
-var sinon = require('sinon');
+
+var validator = require('..');
 var Parser = require('lacona').Parser;
 
-chai.use(require('sinon-chai'));
+function toStream(strings) {
+	var newStream = new stream.Readable({objectMode: true});
+
+	strings.forEach(function (string) {
+		newStream.push(string);
+	});
+	newStream.push(null);
+
+	return newStream;
+}
+
+function toArray(done) {
+	var newStream = new stream.Writable({objectMode: true});
+	var list = [];
+	newStream.write = function(obj) {
+		list.push(obj);
+	};
+
+	newStream.end = function() {
+		done(list);
+	};
+
+	return newStream;
+}
+
 
 describe('validator', function () {
 	var parser;
@@ -35,53 +60,45 @@ describe('validator', function () {
 	});
 
 	it('validates an input programmatically', function (done) {
-		var handleData = sinon.spy(function (data) {
-			expect(data.match[0].string).to.equal('validValue');
-			expect(data.result.test).to.equal('validValue');
-		});
-
-		var handleEnd = function () {
-			expect(handleData).to.have.been.called.once;
+		function callback(data) {
+			expect(data).to.have.length(3);
+			expect(data[1].data.match[0].string).to.equal('validValue');
+			expect(data[1].data.result.test).to.equal('validValue');
 			done();
-		};
+		}
 
-		parser
-		.understand(grammar)
-		.on('data', handleData)
-		.on('end', handleEnd)
-		.parse('validValue');
+		parser.understand(grammar);
+
+		toStream(['validValue'])
+			.pipe(parser)
+			.pipe(toArray(callback));
 	});
 
 	it('invalidates an input programmatically', function (done) {
-		var handleData = sinon.spy();
-
-		var handleEnd = function () {
-			expect(handleData).to.not.have.been.called;
+		function callback(data) {
+			expect(data).to.have.length(2);
 			done();
-		};
+		}
 
-		parser
-		.understand(grammar)
-		.on('data', handleData)
-		.on('end', handleEnd)
-		.parse('invalidValue');
+		parser.understand(grammar);
+
+		toStream(['invalidValue'])
+			.pipe(parser)
+			.pipe(toArray(callback));
 	});
 
 	it('offers a suggestion', function (done) {
-		var handleData = sinon.spy(function (data) {
-			expect(data.suggestion.words[0].string).to.equal('suggestion');
-			expect(data.result.test).to.equal('suggestion');
-		});
-
-		var handleEnd = function () {
-			expect(handleData).to.have.been.calledOnce
+		function callback(data) {
+			expect(data).to.have.length(3);
+			expect(data[1].data.suggestion.words[0].string).to.equal('suggestion');
+			expect(data[1].data.result.test).to.equal('suggestion');
 			done();
-		};
+		}
 
-		parser
-		.understand(grammar)
-		.on('data', handleData)
-		.on('end', handleEnd)
-		.parse('');
+		parser.understand(grammar);
+
+		toStream([''])
+			.pipe(parser)
+			.pipe(toArray(callback));
 	});
 });
