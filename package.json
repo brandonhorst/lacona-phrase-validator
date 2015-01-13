@@ -6,15 +6,11 @@
   "directories": {
     "test": "test"
   },
-  "dependencies": {
-    "lacona-util": "0.0.0"
-  },
   "devDependencies": {
     "chai": "^1.10.0",
     "coveralls": "^2.11.2",
     "istanbul": "^0.3.5",
     "jshint": "^2.5.11",
-    "lacona": "^0.12.2",
     "lacona-util-jshint": "^0.2.0",
     "mocha": "^2.1.0"
   },
@@ -42,5 +38,8 @@
   "bugs": {
     "url": "https://github.com/brandonhorst/lacona-phrase-validator/issues"
   },
-  "homepage": "https://github.com/brandonhorst/lacona-phrase-validator"
+  "homepage": "https://github.com/brandonhorst/lacona-phrase-validator",
+  "dependencies": {
+    "lacona": "^0.14.2"
+  }
 }
