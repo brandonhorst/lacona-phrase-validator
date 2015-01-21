@@ -102,7 +102,41 @@ describe('validator', function () {
 			toStream([''])
 				.pipe(parser)
 				.pipe(toArray(callback));
+		});
+	});
+
+	describe('splitOn', function () {
+		var test;
+		beforeEach(function () {
+			test = lacona.createPhrase({
+				name: 'test/test',
+				describe: function () {
+					return lacona.sequence({children: [
+						validator({splitOn: /( )/, id: 'test'}),
+						validator({default: function (done) { done(null, ''); }})
+					]});
+				}
 			});
+		});
+
+		it('allows splits on regex', function (done) {
+			function callback(data) {
+				expect(data).to.have.length(5);
+				expect(fulltext.match(data[1].data)).to.equal('anything goes here');
+				expect(data[1].data.result.test).to.equal('anything');
+				expect(fulltext.match(data[2].data)).to.equal('anything goes here');
+				expect(data[2].data.result.test).to.equal('anything goes');
+				expect(fulltext.match(data[3].data)).to.equal('anything goes here');
+				expect(data[3].data.result.test).to.equal('anything goes here');
+				done();
+			}
+
+			parser.sentences = [test()];
+
+			toStream(['anything goes here'])
+				.pipe(parser)
+				.pipe(toArray(callback));
+		});
 	});
 
 	describe('defaults', function () {
