@@ -4,6 +4,7 @@ var expect = chai.expect;
 
 var validator = require('..');
 var lacona = require('lacona');
+var fulltext = require('lacona-util-fulltext');
 
 function toStream(strings) {
 	var newStream = new stream.Readable({objectMode: true});
@@ -63,7 +64,7 @@ describe('validator', function () {
 		it('validates an input programmatically', function (done) {
 			function callback(data) {
 				expect(data).to.have.length(3);
-				expect(data[1].data.match[0].string).to.equal('validValue');
+				expect(fulltext.match(data[1].data)).to.equal('validValue');
 				expect(data[1].data.result.test).to.equal('validValue');
 				done();
 			}
@@ -91,7 +92,7 @@ describe('validator', function () {
 		it('offers a suggestion', function (done) {
 			function callback(data) {
 				expect(data).to.have.length(3);
-				expect(data[1].data.suggestion.words[0].string).to.equal('suggestion');
+				expect(fulltext.suggestion(data[1].data)).to.equal('suggestion');
 				expect(data[1].data.result.test).to.equal('suggestion');
 				done();
 			}
@@ -120,7 +121,7 @@ describe('validator', function () {
 		it('no validate always accepts', function (done) {
 			function callback(data) {
 				expect(data).to.have.length(3);
-				expect(data[1].data.match[0].string).to.equal('anything');
+				expect(fulltext.match(data[1].data)).to.equal('anything');
 				expect(data[1].data.result.test).to.equal('anything');
 				done();
 			}
