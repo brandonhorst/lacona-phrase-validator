@@ -105,6 +105,45 @@ describe('validator', function () {
 		});
 	});
 
+	describe('in sequence', function () {
+		var test;
+
+		beforeEach(function() {
+			test = lacona.createPhrase({
+				name: 'test/test',
+				defaultFunction: function (done) {
+					done(null, 'suggestion');
+				},
+				describe: function () {
+					return lacona.sequence({children: [
+						lacona.literal({text: 'test'}),
+						validator({
+							validate: this.validateFunction,
+							default: this.defaultFunction,
+							id: 'test'
+						})
+					]})
+				}
+			});
+		});
+
+		it('offers a completion', function (done) {
+			function callback(data) {
+				expect(data).to.have.length(3);
+				expect(fulltext.completion(data[1].data)).to.equal('suggestion');
+				expect(data[1].data.result.test).to.equal('suggestion');
+				done();
+			}
+
+			parser.sentences = [test()];
+
+			toStream([''])
+				.pipe(parser)
+				.pipe(toArray(callback));
+		});
+
+	});
+
 	describe('splitOn', function () {
 		var test;
 		beforeEach(function () {

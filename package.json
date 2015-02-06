@@ -41,7 +41,7 @@
   },
   "homepage": "https://github.com/brandonhorst/lacona-phrase-validator",
   "dependencies": {
-    "lacona": "^0.16.2",
+    "lacona": "^0.17.1",
     "lacona-util-phrasehelpers": "^0.1.0"
   }
 }
