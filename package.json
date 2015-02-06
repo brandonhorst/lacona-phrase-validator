@@ -1,6 +1,6 @@
 {
   "name": "lacona-phrase-validator",
-  "version": "0.5.4",
+  "version": "0.5.5",
   "description": "Lacona phrase that validates input programmatically, but does not suggest",
   "main": "lib/validator.js",
   "directories": {
