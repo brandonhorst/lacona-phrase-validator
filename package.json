@@ -7,9 +7,9 @@
     "test": "test"
   },
   "devDependencies": {
-    "chai": "^1.10.0",
+    "chai": "^2.0.0",
     "coveralls": "^2.11.2",
-    "istanbul": "^0.3.5",
+    "istanbul": "^0.3.6",
     "jshint": "^2.6.0",
     "lacona-util-fulltext": "^0.2.0",
     "lacona-util-jshint": "^0.2.0",
@@ -41,7 +41,7 @@
   },
   "homepage": "https://github.com/brandonhorst/lacona-phrase-validator",
   "dependencies": {
-    "lacona": "^0.17.1",
+    "lacona": "0.x",
     "lacona-util-phrasehelpers": "^0.1.0"
   }
 }
