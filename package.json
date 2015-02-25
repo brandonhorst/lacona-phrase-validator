@@ -7,26 +7,24 @@
     "test": "test"
   },
   "devDependencies": {
-    "chai": "^2.0.0",
-    "coveralls": "^2.11.2",
-    "istanbul": "^0.3.6",
-    "jshint": "^2.6.0",
+    "babel": "^4.5.1",
+    "chai": "^2.1.0",
+    "event-stream": "^3.2.2",
+    "lacona": "^0.19.0",
     "lacona-util-fulltext": "^0.2.0",
-    "lacona-util-jshint": "^0.2.0",
-    "mocha": "^2.1.0"
+    "mocha": "^2.1.0",
+    "rimraf": "^2.2.8"
   },
   "scripts": {
-    "test": "mocha test",
-    "lint": "npm run lint:lib && npm run lint:test",
-    "lint:lib": "jshint --config node_modules/lacona-util-jshint/lib.json lib",
-    "lint:test": "jshint --config node_modules/lacona-util-jshint/test.json test",
-    "validate": "npm run lint && npm run test",
-    "cover": "istanbul cover _mocha test -- -R dot && istanbul report text",
-    "coveralls": "istanbul cover _mocha test --report lcovonly -- -R dot && cat coverage/lcov.info | coveralls && rimraf ./coverage"
+    "test": "mocha tmp",
+    "build": "babel src --out-dir lib",
+    "validate": "babel test --out-dir tmp && npm run build && npm run test",
+    "clean": "rimraf tmp lib",
+    "prepublish": "npm run clean && npm run build"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/brandonhorst/lacona-phrase-validator.git"
+    "url": "https://github.com/lacona/lacona-phrase-validator.git"
   },
   "keywords": [
     "lacona",
@@ -37,11 +35,10 @@
   "author": "@brandonhorst",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/brandonhorst/lacona-phrase-validator/issues"
+    "url": "https://github.com/lacona/lacona-phrase-validator/issues"
   },
-  "homepage": "https://github.com/brandonhorst/lacona-phrase-validator",
+  "homepage": "https://github.com/lacona/lacona-phrase-validator",
   "dependencies": {
-    "lacona": "0.x",
-    "lacona-util-phrasehelpers": "^0.1.0"
+    "lacona-phrase": "0.0.2"
   }
 }
