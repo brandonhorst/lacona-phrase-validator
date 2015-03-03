@@ -10,7 +10,7 @@ function substrings(inputString, splitOn = '') {
   return result;
 }
 
-export default class Validator {
+export default class Validator extends Phrase {
   validate(inputString, data, done) {
     if (inputString === '') {
       this.props.default((err, suggestion) => {
