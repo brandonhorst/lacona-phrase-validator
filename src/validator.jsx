@@ -1,46 +1,39 @@
 /** @jsx createElement */
 import {Phrase, createElement} from 'lacona-phrase'
 
-function substrings(inputString, splitOn = '') {
+function substrings (input, splitOn) {
   let result = []
-  let inputs = inputString.split(splitOn)
+  let inputs = input.split(splitOn)
   for (let i = 0; i < inputs.length; i++) {
-    result.push(inputs.slice(0, i + 1).join(splitOn));
+    result.push(inputs.slice(0, i + 1).join(splitOn))
   }
-  return result;
+  return result
 }
 
 export default class Validator extends Phrase {
-  validate(inputString, data, done) {
-    if (inputString === '') {
-      this.props.default((err, suggestion) => {
-        if (err) return done(err)
-
-        if (suggestion || suggestion === '') {
-          data({text: suggestion, value: suggestion})
-        }
-      })
-    } else {
-      substrings(inputString, this.props.splitOn).forEach(stringPart => {
-        this.props.validate(stringPart, (err, isValid) => {
-          if (err) return done(err)
-          if (isValid) data({text: stringPart, value: stringPart})
-        })
-      })
+  static get defaultProps () {
+    return {
+      *default() {},
+      validate() {return true},
+      splitOn: ''
     }
-    done()
   }
 
-  getValue(result) {
-    return result.value;
+  *validate (input) {
+    if (input === '') {
+      for (let suggestion of this.props.default()) {
+        yield {text: suggestion, value: suggestion}
+      }
+    } else {
+      for (let stringPart of substrings(input, this.props.splitOn)) {
+        if (this.props.validate(stringPart)) {
+          yield {text: stringPart, value: stringPart}
+        }
+      }
+    }
   }
 
   describe() {
-    return <value compute={this.validate.bind(this)} id='value'
-      limit={this.props.limit} fuzzy='none' />
+    return <value compute={this.validate.bind(this)} limit={this.props.limit} fuzzy='none' />
   }
-}
-Validator.defaultProps = {
-  default: function (done) { done(); },
-  validate: function (input, done) { done(null, true); }
 }

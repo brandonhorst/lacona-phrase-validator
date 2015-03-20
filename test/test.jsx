@@ -1,82 +1,62 @@
 /** @jsx createElement */
+/* eslint-env mocha */
 import {createElement, Phrase} from 'lacona-phrase'
-import es from 'event-stream'
 import {expect} from 'chai'
 import Validator from '..'
 import {Parser} from 'lacona'
 import fulltext from 'lacona-util-fulltext'
 
-describe('validator', function () {
-	var parser;
+function from(i) {const a = []; for (let x of i) a.push(x); return a}
 
-	beforeEach(function () {
-		parser = new Parser();
-	});
+describe('validator', () => {
+	var parser
 
-	describe('basic usage', function () {
+	beforeEach(() => {
+		parser = new Parser()
+	})
+
+	describe('basic usage', () => {
 		class Test extends Phrase {
-			validateFunction(inputString, done) {
-				done(null, inputString === 'validValue');
+			validateFunction(input) {
+				return input === 'validValue'
 			}
 
-			defaultFunction(done) {
-				done(null, 'suggestion');
+			defaultFunction() {
+				return ['suggestion']
 			}
 
 			describe() {
 				return <Validator validate={this.validateFunction}
-					default={this.defaultFunction} id='test' />
+					default={this.defaultFunction}/>
 			}
 		}
 
-		it('validates an input programmatically', function (done) {
-			function callback(err, data) {
-				expect(data).to.have.length(3);
-				expect(fulltext.match(data[1].data)).to.equal('validValue');
-				expect(data[1].data.result.test).to.equal('validValue');
-				done();
-			}
+		it('validates input', () => {
+			parser.sentences = [<Test />]
 
-			parser.sentences = [<Test />];
+			const data1 = from(parser.parse('validValue'))
+			expect(data1).to.have.length(1)
+			expect(fulltext.match(data1[0])).to.equal('validValue')
+			expect(data1[0].result).to.equal('validValue')
 
-			es.readArray(['validValue'])
-				.pipe(parser)
-				.pipe(es.writeArray(callback));
-		});
+			const data2 = from(parser.parse('invalidValue'))
+			expect(data2).to.have.length(0)
+		})
 
-		it('invalidates an input programmatically', function (done) {
-			function callback(err, data) {
-				expect(data).to.have.length(2);
-				done();
-			}
+		it('offers a suggestion', () => {
+			parser.sentences = [<Test />]
 
-			parser.sentences = [<Test />];
+			const data = from(parser.parse(''))
+			expect(data).to.have.length(1)
+			expect(fulltext.suggestion(data[0])).to.equal('suggestion')
+			expect(data[0].result).to.equal('suggestion')
+		})
+	})
 
-			es.readArray(['invalidValue'])
-				.pipe(parser)
-				.pipe(es.writeArray(callback));
-		});
-
-		it('offers a suggestion', function (done) {
-			function callback(err, data) {
-				expect(data).to.have.length(3);
-				expect(fulltext.suggestion(data[1].data)).to.equal('suggestion');
-				expect(data[1].data.result.test).to.equal('suggestion');
-				done();
-			}
-
-			parser.sentences = [<Test />];
-
-			es.readArray([''])
-				.pipe(parser)
-				.pipe(es.writeArray(callback));
-		});
-	});
-
-	describe('in sequence', function () {
+	describe('in sequence', () => {
 		class Test extends Phrase {
-			defaultFunction(done) {
-				done(null, 'suggestion');
+			*defaultFunction() {
+				yield 'suggestion'
 			}
 
 			describe() {
@@ -89,27 +69,22 @@ describe('validator', function () {
 			}
 		}
 
-		it('offers a completion', function (done) {
-			function callback(err, data) {
-				expect(data).to.have.length(3);
-				expect(fulltext.completion(data[1].data)).to.equal('suggestion');
-				expect(data[1].data.result.test).to.equal('suggestion');
-				done();
-			}
+		it('offers a completion', () => {
+			parser.sentences = [<Test />]
 
-			parser.sentences = [<Test />];
+			const data = from(parser.parse(''))
+			expect(data).to.have.length(1)
+			expect(fulltext.suggestion(data[0])).to.equal('test')
+			expect(fulltext.completion(data[0])).to.equal('suggestion')
+			expect(data[0].result.test).to.equal('suggestion')
+		})
 
-			es.readArray([''])
-				.pipe(parser)
-				.pipe(es.writeArray(callback));
-		});
+	})
 
-	});
-
-	describe('splitOn', function () {
+	describe('splitOn', () => {
 		class Test extends Phrase {
-			defaultFunction(done) {
-				done(null, '');
+			*defaultFunction() {
+				yield ''
 			}
 
 			describe() {
@@ -122,53 +97,34 @@ describe('validator', function () {
 			}
 		}
 
-		it('allows splits on strings', function (done) {
-			function callback(err, data) {
-				expect(data).to.have.length(5);
-				expect(fulltext.match(data[1].data)).to.equal('anything goes here');
-				expect(data[1].data.result.test).to.equal('anything');
-				expect(fulltext.match(data[2].data)).to.equal('anything goes here');
-				expect(data[2].data.result.test).to.equal('anything goes');
-				expect(fulltext.match(data[3].data)).to.equal('anything goes here');
-				expect(data[3].data.result.test).to.equal('anything goes here');
-				done();
-			}
+		it('allows splits on strings', () => {
+			parser.sentences = [<Test />]
 
-			parser.sentences = [<Test />];
+			const data = from(parser.parse('anything goes here'))
+			expect(data).to.have.length(3)
+			expect(fulltext.match(data[0])).to.equal('anything goes here')
+			expect(data[0].result.test).to.equal('anything')
+			expect(fulltext.match(data[1])).to.equal('anything goes here')
+			expect(data[1].result.test).to.equal('anything goes')
+			expect(fulltext.match(data[2])).to.equal('anything goes here')
+			expect(data[2].result.test).to.equal('anything goes here')
+		})
+	})
 
-			es.readArray(['anything goes here'])
-				.pipe(parser)
-				.pipe(es.writeArray(callback));
-		});
-	});
+	describe('defaults', () => {
+		it('no validate always accepts', () => {
+			parser.sentences = [<Validator id='test' />]
 
-	describe('defaults', function () {
-		it('no validate always accepts', function (done) {
-			function callback(err, data) {
-				expect(data).to.have.length(3);
-				expect(fulltext.match(data[1].data)).to.equal('anything');
-				expect(data[1].data.result).to.equal('anything');
-				done();
-			}
+			const data = from(parser.parse('anything'))
+			expect(data).to.have.length(1)
+			expect(fulltext.match(data[0])).to.equal('anything')
+			expect(data[0].result).to.equal('anything')
+		})
 
-			parser.sentences = [<Validator id='test' />];
-
-			es.readArray(['anything'])
-				.pipe(parser)
-				.pipe(es.writeArray(callback));
-		});
-
-		it('no default suggests nothing', function (done) {
-			function callback(err, data) {
-				expect(data).to.have.length(2);
-				done();
-			}
-
-			parser.sentences = [<Validator />];
-
-			es.readArray([''])
-				.pipe(parser)
-				.pipe(es.writeArray(callback));
-		});
-	});
-});
+		it('no default suggests nothing', () => {
+			parser.sentences = [<Validator />]
+			const data = from(parser.parse(''))
+			expect(data).to.be.empty
+		})
+	})
+})
