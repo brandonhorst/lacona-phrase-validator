@@ -13,27 +13,31 @@ function substrings (input, splitOn) {
 export default class Validator extends Phrase {
   static get defaultProps () {
     return {
-      *default() {},
+      suggest() {return []},
       validate() {return true},
       splitOn: ''
     }
   }
 
+  *suggest () {
+    for (let string of this.props.suggest()) {
+      yield {suggestion: string, value: string}
+    }
+  }
+
   *validate (input) {
-    if (input === '') {
-      for (let suggestion of this.props.default()) {
-        yield {text: suggestion, value: suggestion}
-      }
-    } else {
-      for (let stringPart of substrings(input, this.props.splitOn)) {
-        if (this.props.validate(stringPart)) {
-          yield {text: stringPart, value: stringPart}
+    for (let stringPart of substrings(input, this.props.splitOn)) {
+      if (this.props.validate(stringPart)) {
+        yield {
+          words: [{text: stringPart, input: true}],
+          value: stringPart,
+          remaining: input.substring(stringPart.length)
         }
       }
     }
   }
 
   describe() {
-    return <value compute={this.validate.bind(this)} limit={this.props.limit} fuzzy='none' />
+    return <value compute={this.validate.bind(this)} suggest={this.suggest.bind(this)} limit={this.props.limit} />
   }
 }

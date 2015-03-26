@@ -26,8 +26,7 @@ describe('validator', () => {
 			}
 
 			describe() {
-				return <Validator validate={this.validateFunction}
-					default={this.defaultFunction}/>
+				return <Validator validate={this.validateFunction} suggest={this.defaultFunction}/>
 			}
 		}
 
@@ -63,7 +62,7 @@ describe('validator', () => {
 				return (
 					<sequence>
 						<literal text='test' />
-						<Validator default={this.defaultFunction} id='test' />
+						<Validator suggest={this.defaultFunction} id='test' />
 					</sequence>
 				)
 			}
@@ -91,7 +90,7 @@ describe('validator', () => {
 				return (
 					<sequence>
 						<Validator splitOn=' ' id='test' />
-						<Validator default={this.defaultFunction} />
+						<Validator suggest={this.defaultFunction} />
 					</sequence>
 				)
 			}
