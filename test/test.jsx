@@ -15,115 +15,82 @@ describe('validator', () => {
 		parser = new Parser()
 	})
 
-	describe('basic usage', () => {
-		class Test extends Phrase {
-			validateFunction(input) {
-				return input === 'validValue'
-			}
-
-			defaultFunction() {
-				return ['suggestion']
-			}
-
-			describe() {
-				return <Validator validate={this.validateFunction} suggest={this.defaultFunction}/>
-			}
+	it('validates input', () => {
+		function validate (input) {
+			return input === 'validValue'
 		}
 
-		it('validates input', () => {
-			parser.sentences = [<Test />]
+		parser.sentences = [<Validator validate={validate} />]
 
-			const data1 = from(parser.parse('validValue'))
-			expect(data1).to.have.length(1)
-			expect(fulltext.match(data1[0])).to.equal('validValue')
-			expect(data1[0].result).to.equal('validValue')
+		const data1 = from(parser.parse('validValue'))
+		expect(data1).to.have.length(1)
+		expect(fulltext.match(data1[0])).to.equal('validValue')
+		expect(data1[0].result).to.equal('validValue')
 
-			const data2 = from(parser.parse('invalidValue'))
-			expect(data2).to.have.length(0)
-		})
-
-		it('offers a suggestion', () => {
-			parser.sentences = [<Test />]
-
-			const data = from(parser.parse(''))
-			expect(data).to.have.length(1)
-			expect(fulltext.suggestion(data[0])).to.equal('suggestion')
-			expect(data[0].result).to.equal('suggestion')
-		})
+		const data2 = from(parser.parse('invalidValue'))
+		expect(data2).to.have.length(0)
 	})
 
-	describe('in sequence', () => {
-		class Test extends Phrase {
-			*defaultFunction() {
-				yield 'suggestion'
-			}
+	it('no validate always accepts', () => {
+		parser.sentences = [<Validator id='test' />]
 
+		const data = from(parser.parse('anything'))
+		expect(data).to.have.length(1)
+		expect(fulltext.match(data[0])).to.equal('anything')
+		expect(data[0].result).to.equal('anything')
+	})
+
+	it('allows splits on strings', () => {
+		class Test extends Phrase {
 			describe() {
 				return (
 					<sequence>
-						<literal text='test' />
-						<Validator suggest={this.defaultFunction} id='test' />
+						<Validator splitOn=' ' id='validator' />
+						<choice>
+							<literal text=' test' />
+							<literal text='thing' />
+						</choice>
 					</sequence>
 				)
 			}
 		}
 
-		it('offers a completion', () => {
-			parser.sentences = [<Test />]
+		parser.sentences = [<Test />]
 
-			const data = from(parser.parse(''))
-			expect(data).to.have.length(1)
-			expect(fulltext.suggestion(data[0])).to.equal('test')
-			expect(fulltext.completion(data[0])).to.equal('suggestion')
-			expect(data[0].result.test).to.equal('suggestion')
-		})
-
+		const data = from(parser.parse('anything goes test'))
+		expect(data).to.have.length(3)
+		expect(fulltext.all(data[0])).to.equal('anything goes test')
+		expect(data[0].result.validator).to.equal('anything goes')
+		expect(fulltext.all(data[1])).to.equal('anything goes test test')
+		expect(data[1].result.validator).to.equal('anything goes test')
+		expect(fulltext.all(data[2])).to.equal('anything goes testthing')
+		expect(data[2].result.validator).to.equal('anything goes test')
 	})
 
-	describe('splitOn', () => {
+	it('allows splits on regex (with weird parens)', () => {
 		class Test extends Phrase {
-			*defaultFunction() {
-				yield ''
-			}
-
 			describe() {
 				return (
 					<sequence>
-						<Validator splitOn=' ' id='test' />
-						<Validator suggest={this.defaultFunction} />
+						<Validator splitOn={/(( )())/} id='validator' />
+						<choice>
+							<literal text=' test' />
+							<literal text='thing' />
+						</choice>
 					</sequence>
 				)
 			}
 		}
 
-		it('allows splits on strings', () => {
-			parser.sentences = [<Test />]
+		parser.sentences = [<Test />]
 
-			const data = from(parser.parse('anything goes here'))
-			expect(data).to.have.length(3)
-			expect(fulltext.match(data[0])).to.equal('anything goes here')
-			expect(data[0].result.test).to.equal('anything')
-			expect(fulltext.match(data[1])).to.equal('anything goes here')
-			expect(data[1].result.test).to.equal('anything goes')
-			expect(fulltext.match(data[2])).to.equal('anything goes here')
-			expect(data[2].result.test).to.equal('anything goes here')
-		})
-	})
-
-	describe('defaults', () => {
-		it('no validate always accepts', () => {
-			parser.sentences = [<Validator id='test' />]
-
-			const data = from(parser.parse('anything'))
-			expect(data).to.have.length(1)
-			expect(fulltext.match(data[0])).to.equal('anything')
-			expect(data[0].result).to.equal('anything')
-		})
-
-		it('no default suggests nothing', () => {
-			parser.sentences = [<Validator />]
-			const data = from(parser.parse(''))
-			expect(data).to.be.empty
-		})
+		const data = from(parser.parse('anything goes test'))
+		expect(data).to.have.length(3)
+		expect(fulltext.all(data[0])).to.equal('anything goes test')
+		expect(data[0].result.validator).to.equal('anything goes')
+		expect(fulltext.all(data[1])).to.equal('anything goes test test')
+		expect(data[1].result.validator).to.equal('anything goes test')
+		expect(fulltext.all(data[2])).to.equal('anything goes testthing')
+		expect(data[2].result.validator).to.equal('anything goes test')
 	})
 })

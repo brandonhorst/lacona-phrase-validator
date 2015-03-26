@@ -39,7 +39,8 @@
   },
   "homepage": "https://github.com/lacona/lacona-phrase-validator",
   "dependencies": {
-    "lacona-phrase": "0.6.1"
+    "lacona-phrase": "0.6.1",
+    "smart-split": "^1.0.2"
   },
   "standard": {
     "ignore": [

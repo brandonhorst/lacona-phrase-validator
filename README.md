@@ -1,9 +1,9 @@
-lacona-phrase-validator
-=======================
+# lacona-phrase-validator
 
-Lacona phrase that validates input programmatically, but does not suggest
+lacona phrase that validates input programmatically, but does not suggest anything
 
-Properties:
+## Properties
 
-  * `validate` - name of a function declared on the `scope`. It is passed a string and a callback. It should call the callback with either an error, or a boolean representing whether or not the string is valid.
-  * `default` - name of a function declared on the `scope`. It is passed a callback. It should call the callback with some string, which the phrase will use before it has any input to validate.
+  * `validate: Function(input: String)`: Expected to return a `Boolean` representing whether or not `input` is valid
+  * `splitOn: String|RegExp`
+  * `limit: Integer`: passed on to underlying `value`

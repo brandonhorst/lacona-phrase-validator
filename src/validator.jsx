@@ -1,27 +1,19 @@
 /** @jsx createElement */
 import {Phrase, createElement} from 'lacona-phrase'
+import split from 'smart-split'
 
-function substrings (input, splitOn) {
-  let result = []
-  let inputs = input.split(splitOn)
-  for (let i = 0; i < inputs.length; i++) {
-    result.push(inputs.slice(0, i + 1).join(splitOn))
+function* substrings (input, splitOn) {
+  let inputs = split(input, splitOn)
+  for (let i = 0; i < inputs.length; i += 2) {
+    yield inputs.slice(0, i + 1).join('')
   }
-  return result
 }
 
 export default class Validator extends Phrase {
   static get defaultProps () {
     return {
-      suggest() {return []},
       validate() {return true},
       splitOn: ''
-    }
-  }
-
-  *suggest () {
-    for (let string of this.props.suggest()) {
-      yield {suggestion: string, value: string}
     }
   }
 
@@ -38,6 +30,6 @@ export default class Validator extends Phrase {
   }
 
   describe() {
-    return <value compute={this.validate.bind(this)} suggest={this.suggest.bind(this)} limit={this.props.limit} />
+    return <value compute={this.validate.bind(this)} limit={this.props.limit} />
   }
 }
