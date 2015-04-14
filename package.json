@@ -15,9 +15,9 @@
     "rimraf": "^2.3.2"
   },
   "scripts": {
-    "pretest": "babel test --out-dir tmp -b regenerator",
+    "pretest": "babel --optional runtime test --out-dir tmp",
     "test": "mocha tmp",
-    "build": "babel src --out-dir lib -b regenerator",
+    "build": "babel --optional runtime src --out-dir lib",
     "validate": "npm run build && npm run test",
     "clean": "rimraf tmp lib",
     "prepublish": "npm run clean && npm run build"
@@ -39,6 +39,8 @@
   },
   "homepage": "https://github.com/lacona/lacona-phrase-validator",
   "dependencies": {
+    "babel": "^4.7.16",
+    "babel-runtime": "^4.7.16",
     "lacona-phrase": "0.6.1",
     "smart-split": "^1.0.2"
   },

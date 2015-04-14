@@ -23,7 +23,8 @@ export default class Validator extends Phrase {
         yield {
           words: [{text: stringPart, input: true}],
           value: stringPart,
-          remaining: input.substring(stringPart.length)
+          remaining: input.substring(stringPart.length),
+          score: 0.1 + (1 / (stringPart.length + 2))
         }
       }
     }
